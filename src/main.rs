@@ -26,7 +26,7 @@ async fn hello(_: Request<hyper::body::Incoming>) -> Result<Response<Full<Bytes>
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Bind the server's socket
     let addr = "127.0.0.1:12345".to_string();
-    let tcp: TcpListener = TcpListener::bind(&addr).await?;
+    let listen: TcpListener = TcpListener::bind(&addr).await?;
 
     let pem = include_bytes!("cert.pem");
     let key = include_bytes!("key.pem");
@@ -36,20 +36,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let tls_acceptor = tokio_native_tls::TlsAcceptor::from(tls_acceptor);
 
     loop {
-        // Asynchronously wait for an inbound socket.
-        let (socket, remote_addr) = tcp.accept().await?;
+        let (socket, _) = listen.accept().await?;
         let tls_acceptor = tls_acceptor.clone();
-        println!("accept connection from {}", remote_addr);
-
-        let server = auto::Builder::new(TokioExecutor::new());
+        let server = auto::Builder::new(TokioExecutor::new()); //http1 or http2
 
         tokio::spawn(async move {
-            // Accept the TLS connection.
             let tls_stream = tls_acceptor.accept(socket).await.unwrap();
-            let tls_stream: hyper_tls::TlsStream<_> = tls_stream.into(); // not necessary
             let io = TokioIo::new(tls_stream);
             let service = service_fn(hello);
-
             server.serve_connection(io, service).await.unwrap()
         });
     }
