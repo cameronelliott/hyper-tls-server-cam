@@ -1,0 +1,16 @@
+[package]
+edition = "2021"
+name = "hyper-tls-server-cam"
+version = "0.1.0"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+bytes = "1.5.0"
+http-body-util = "0.1.0"
+hyper = {version = "1.1.0", features = ["full"]}
+hyper-tls = "0.6.0"
+hyper-util = {version = "0.1.2", features = ["full"]}
+native-tls = {version = "0.2.11", features = []}
+tokio = {version = "1.35.1", features = ["full"]}
+tokio-native-tls = "0.3.1"
